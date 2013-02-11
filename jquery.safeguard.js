@@ -38,6 +38,11 @@ var safeguard_tinymce = {
     var items = [];
     var has_changed = false;
 
+
+    var getHKey = function (index) {
+        return (index == undefined ? 'history-' + index + '-' : '') + settings.local_key;
+    };
+
     var methods = {
         getItems : function() {
             if (!items.length) {
@@ -50,6 +55,16 @@ var safeguard_tinymce = {
                 });
             }
             return $(items);
+        },
+
+        getDatas : function(index) {
+            var datas = {};
+            var hkey = getHKey(index);
+            $.each(this.safeguard('getItems'), function(i, e) { 
+                key =  hkey + e.attr("id");
+                datas[key] = localStorage[key];
+            });
+            return datas;
         },
 
         init : function(config) {
