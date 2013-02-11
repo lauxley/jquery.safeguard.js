@@ -33,17 +33,19 @@ var safeguard_tinymce = {
         // history : 0 // TODO
     };
     var settings = {};
+    var items = [];
 
     var methods = {
         getItems : function() {
-            var items = [];
-            this.each(function() {
-                $.each( $("textarea,input", this), function(i, e) {
-                    if ($(e).attr("id") != undefined && (!settings.selector || (settings.selector && $(e).is(settings.selector)))) {
-                        items.push(e);
-                    }
+            if (!items.length) {
+                this.each(function() {
+                    $.each( $("textarea,input", this), function(i, e) {
+                        if ($(e).attr("id") != undefined && (!settings.selector || (settings.selector && $(e).is(settings.selector)))) {
+                            items.push(e);
+                        }
+                    });
                 });
-            });
+            }
             return $(items);
         },
 

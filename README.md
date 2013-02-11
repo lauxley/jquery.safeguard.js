@@ -8,7 +8,7 @@ Usage
 
 Safeguard is fairly easy to use :
 
-$('#my-form').safeguard('init');
+`$('#my-form').safeguard('init');`
 
 By default safeguard will save datas on the onchange event,  
 and will automatically recover it when the form is initialized if the form have not been submited.  
@@ -39,9 +39,9 @@ Available configs
 
     **default** : "change"  
     Change when the datas will be saved,  
-    two values for now : 
+    two values for now :
     * "change" bind the save on the "onchange" event of the inputs
-    * "timer" save the form on a regular basis
+    * "timer" save the form on a regular basis  
 
 * save_timer
 
@@ -63,7 +63,6 @@ Available configs
     * In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
     * The "custom" mode let you bind the data recovery as you wish (example on the way).
 
-
 TODO
 ----
 
@@ -73,4 +72,3 @@ TODO
 * i18n
 * comments
 * history
-* cache the result of getItems or make it lazy
