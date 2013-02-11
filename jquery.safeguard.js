@@ -51,15 +51,15 @@ var safeguard_tinymce = {
             var self = this;
 
             function _init_mode_silent() {
-                if (methods.hasItems.apply(self)) {
-                    methods.load.apply(self);
+                if (self.safeguard('hasItems')) {
+                    self.safeguard('load');
                 }
             }
 
             function _init_mode_alert() {
-                if (methods.hasItems.apply(self)) {
+                if (self.safeguard('hasItems')) {
                     if (confirm("You have unsaved datas, do you want to retrieve them ?")) {
-                        methods.load.apply(self);
+                        self.safeguard('load');
                     }
                 }
             }
@@ -70,26 +70,26 @@ var safeguard_tinymce = {
             
             switch (settings.save_mode) {
                 case "change":
-                    $.each(methods.getItems.apply(this), function(i, e) {
+                    $.each(self.safeguard('getItems'), function(i, e) {
                         if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
-                            settings.editor_plugin.onChange($(e), function() { methods.save.apply(self); });
+                            settings.editor_plugin.onChange($(e), function() { self.safeguard('save'); });
                         } else {
-                            $(e).bind("change", function() { methods.save.apply(self); });
+                            $(e).bind("change", function() { self.safeguard('save'); });
                         }
                     });
                     break;
                 case "timer":
                     if (settings.save_timer) {
-                        self.data('timer', setInterval(function() { methods.save.apply(self); }, settings.save_timer*1000));
+                        self.data('timer', setInterval(function() { self.safeguard('save'); }, settings.save_timer*1000));
                     }
                     break;
                 default:
                     $.error("Not Implemented save mode : "+settings.save_mode);
             }
 
-            self.bind("submit", function(e) { 
+            self.bind("submit", function(e) {
                 clearInterval(self.data("timer"));
-                methods.clear.apply(self);
+                self.safeguard('flush');
             });
 
             switch (settings.recover_mode) {
@@ -109,8 +109,7 @@ var safeguard_tinymce = {
         },
 
         save : function() {
-            return $.each(methods.getItems.apply(this), function(i, e) {
-                console.log('saving', e);
+            return $.each(this.safeguard('getItems'), function(i, e) {
                 if (settings.editor_plugin && settings.editor_plugin.isConcerned($(this))) {
                     val = settings.editor_plugin.getVal($(e));
                 } else {
@@ -126,7 +125,7 @@ var safeguard_tinymce = {
         },
 
         load : function() {
-            return $.each(methods.getItems.apply(this), function(i, e) {
+            return $.each(this.safeguard('getItems'), function(i, e) {
                 key = settings.local_key + $(e).attr("id");
                 if (localStorage[key]) {
                     if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
@@ -138,8 +137,8 @@ var safeguard_tinymce = {
             });
         },
         
-        clear : function() {
-            return this.each(methods.getItems.apply(this), function(i, e) {
+        flush : function() {
+            return $.each(this.safeguard('getItems'), function(i, e) {
                 var key = settings.local_key+$(e).attr("id");
                 localStorage.removeItem(key);
             });
@@ -147,7 +146,7 @@ var safeguard_tinymce = {
 
         hasItems : function() {
             var res = false;
-            $.each( methods.getItems.apply(this), function(i, e) {
+            $.each( this.safeguard('getItems'), function(i, e) {
                 if (localStorage[settings.local_key + $(e).attr("id")]) {
                     res = true;
                 }

@@ -71,7 +71,6 @@ TODO
 * custom mode example
 * add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
 * i18n
-* figure out the best way to call methods (instead of 'methods.foo.apply(self)')
 * comments
 * history
 * cache the result of getItems or make it lazy
