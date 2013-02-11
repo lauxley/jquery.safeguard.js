@@ -21,7 +21,7 @@ But you can change this behavior usings configs:
 
 In this case, the form datas will be saved automatically every 10 seconds.
 
-AVAILABLE CONFIGS
+Available configs
 -----------------
 
 * local_key 
@@ -37,9 +37,11 @@ AVAILABLE CONFIGS
 
 * save_mode
 
-    **default** : "onchange"  
+    **default** : "change"  
     Change when the datas will be saved,  
-    two values for now : "onchange" and "timer".  
+    two values for now : 
+    * "change" bind the save on the "onchange" event of the inputs
+    * "timer" save the form on a regular basis
 
 * save_timer
 
@@ -57,9 +59,9 @@ AVAILABLE CONFIGS
     **default** : "silent"  
     Change how the datas will be recovered,  
     valid values are "silent", "alert" and "custom".  
-    In "silent" mode, if datas are present in the storage when safeguard is initialized, they will be used to fill the form, without user input.  
-    In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
-    The "custom" mode let you bind the data recovery as you wish (example on the way).
+    * In "silent" mode, if datas are present in the storage when safeguard is initialized, they will be used to fill the form, without user input.  
+    * In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
+    * The "custom" mode let you bind the data recovery as you wish (example on the way).
 
 
 TODO
@@ -67,7 +69,9 @@ TODO
 
 * plugin explanation
 * custom mode example
+* add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
 * i18n
 * figure out the best way to call methods (instead of 'methods.foo.apply(self)')
 * comments
 * history
+* cache the result of getItems or make it lazy
