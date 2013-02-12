@@ -43,6 +43,7 @@ Available configs
     * "change" bind the save on the "onchange" event of the inputs
     * "timer" save the form on a regular basis  
 
+
 * save_timer
 
     **default** : 0  
@@ -63,6 +64,7 @@ Available configs
     * In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
     * The "custom" mode let you bind the data recovery as you wish (example on the way).
 
+
 * confirm_label
 
     **default** : "You have unsaved datas, do you want to retrieve them ?"  
@@ -75,25 +77,25 @@ Example snippet
 Here is a small example of how to use a custom recovery mode, and some other stuff :
 
 Let's assume we have a form in the page with a title input, a content textarea with a tinyMCE bind,  
-and any other input that we don't want to save (a password for example).
+and any other input that we don't want to save (a password for example). 
 ``
- // don't do anything untill the page is loaded
- jQuery(function() {
-     // don't do anything untill tinyMCE is loaded !
-     tinyMCE.settings.oninit = function() {
-         $('#my_form').safeguard('init',
-                         {"recover_mode": "custom", // tells safeguard that we will handle the recovery by ourselves.
-                          "editor_plugin":safeguard_tinymce, // tells safeguard that some fields in the form are tinyMCE bound.
-                          "selector":"#id_title,#id_content" // used as a whitelist, we could also do something like
-                                                             // "[id!=id_password]" if we prefer a blacklist style selector.
-                         });
-         if ($('#my_form').safeguard('hasItems')) { // check if there are saved datas at initialization time
-             $("#content").append("<a class='safeguard-btn'>Recover datas</a>"); // add a button if it is the case
-             $(".safeguard-btn").bind("click", function() { $('#article_form').safeguard('load'); }); // bind the click on the button to load the saved datas
-         }
-     }
-  });
-``
+ // don't do anything untill the page is loaded 
+ jQuery(function() { 
+     // don't do anything untill tinyMCE is loaded ! 
+     tinyMCE.settings.oninit = function() { 
+         $('#my_form').safeguard('init', 
+                         {"recover_mode": "custom", // tells safeguard that we will handle the recovery by ourselves. 
+                          "editor_plugin":safeguard_tinymce, // tells safeguard that some fields in the form are tinyMCE bound. 
+                          "selector":"#id_title,#id_content" // used as a whitelist, we could also do something like 
+                                                             // "[id!=id_password]" if we prefer a blacklist style selector. 
+                         }); 
+         if ($('#my_form').safeguard('hasItems')) { // check if there are saved datas at initialization time 
+             $("#content").append("<a class='safeguard-btn'>Recover datas</a>"); // add a button if it is the case 
+             $(".safeguard-btn").bind("click", function() { $('#article_form').safeguard('load'); }); // bind the click on the button to load the saved datas 
+         } 
+     } 
+  }); 
+`` 
 
 
 TODO
@@ -101,6 +103,5 @@ TODO
 
 * plugin explanation
 * add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
-* i18n
 * comments
 * history
