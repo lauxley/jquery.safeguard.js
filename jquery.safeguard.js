@@ -169,7 +169,11 @@ var safeguard_tinymce = {
         },
         
         flush : function() {
-            localStorage.removeItem(settings.local_key+document.location.pathname);
+            var key = settings.local_key+document.location.pathname;
+            var index_store = JSON.parse(localStorage[settings.local_key+"local_store"]); 
+            delete index_store[key];
+            localStorage[settings.local_key+"local_store"] = JSON.stringify(index_store);
+            localStorage.removeItem(key);
         },
 
         hasItems : function() {
@@ -181,7 +185,6 @@ var safeguard_tinymce = {
             var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]);
             var d = new Date().getTime();
             for (key in index_store) {
-                console.log(index_store, key, d, index_store[key], parseInt(d) - parseInt(index_store[key]), (parseInt(d) - parseInt(index_store[key]) > settings.max_age));
                 if (parseInt(d) - parseInt(index_store[key]) > settings.max_age) {
                     delete localStorage[key];
                     delete index_store[key];

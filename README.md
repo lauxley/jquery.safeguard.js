@@ -71,7 +71,7 @@ Available configs
     **default** : "You have unsaved datas, do you want to retrieve them ?"  
     change the sentence displayed in the confirm window when the recover_mode is set to "alert".
 
-* max_age
+* max_age  
     **default** : 1 day (60*60*24 seconds)  
     The number of seconds a key (and thus a form) will stay in db before being purged.
 
