@@ -29,11 +29,13 @@ var safeguard_tinymce = {
         save_mode : "change",
         save_timer : 0,
         selector : null,
-        recover_mode : "silent"
+        recover_mode : "silent",
+        confirm_label : "You have unsaved datas, do you want to retrieve them ?"
         // history : 0 // TODO
     };
     var settings = {};
     var items = [];
+    var something_changed = false;
 
     var methods = {
         getItems : function() {
@@ -60,10 +62,14 @@ var safeguard_tinymce = {
 
             function _init_mode_alert() {
                 if (self.safeguard('hasItems')) {
-                    if (confirm("You have unsaved datas, do you want to retrieve them ?")) {
+                    if (confirm(settings.confirm_label)) {
                         self.safeguard('load');
                     }
                 }
+            }
+
+            function _save() {
+                self.safeguard('save');
             }
 
             if (config == undefined) config = {};
@@ -74,15 +80,15 @@ var safeguard_tinymce = {
                 case "change":
                     $.each(self.safeguard('getItems'), function(i, e) {
                         if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
-                            settings.editor_plugin.onChange($(e), function() { self.safeguard('save'); });
+                            settings.editor_plugin.onChange($(e), _save);
                         } else {
-                            $(e).bind("change", function() { self.safeguard('save'); });
+                            $(e).bind("change", _save);
                         }
                     });
                     break;
                 case "timer":
                     if (settings.save_timer) {
-                        self.data('timer', setInterval(function() { self.safeguard('save'); }, settings.save_timer*1000));
+                        self.data('timer', setInterval(_save, settings.save_timer*1000));
                     }
                     break;
                 default:

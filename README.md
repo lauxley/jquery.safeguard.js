@@ -63,6 +63,12 @@ Available configs
     * In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
     * The "custom" mode let you bind the data recovery as you wish (example on the way).
 
+* confirm_label
+
+    **default** : "You have unsaved datas, do you want to retrieve them ?"  
+    change the sentence displayed in the confirm window when the recover_mode is set to "alert".
+
+
 Example snippet
 ---------------
 
