@@ -35,13 +35,13 @@ var safeguard_tinymce = {
     };
     var settings = {};
     var items = [];
-    var something_changed = false;
+    var has_changed = false;
 
     var methods = {
         getItems : function() {
             if (!items.length) {
                 this.each(function() {
-                    $.each( $("textarea,input", this), function(i, e) {
+                    $.each( $("textarea,input,select", this), function(i, e) {
                         if ($(e).attr("id") != undefined && (!settings.selector || (settings.selector && $(e).is(settings.selector)))) {
                             items.push(e);
                         }
@@ -69,36 +69,46 @@ var safeguard_tinymce = {
             }
 
             function _save() {
-                self.safeguard('save');
+                if (self.has_changed) self.safeguard('save');
+            }
+
+            function _has_changed() {
+                self.has_changed = true;
+                if (settings.save_mode == "change") {
+                    _save();
+                }
+            }
+
+            function _set_timer() {
+                self.data('timer', setInterval(_save, settings.save_timer*1000));
+            }
+
+            function _unbind() {
+                clearInterval(self.data("timer"));
+                self.safeguard('flush');
             }
 
             if (config == undefined) config = {};
             settings = $.extend({}, defaults);
             if (config) { $.extend(settings, config); }
             
-            switch (settings.save_mode) {
-                case "change":
-                    $.each(self.safeguard('getItems'), function(i, e) {
-                        if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
-                            settings.editor_plugin.onChange($(e), _save);
-                        } else {
-                            $(e).bind("change", _save);
-                        }
-                    });
-                    break;
-                case "timer":
-                    if (settings.save_timer) {
-                        self.data('timer', setInterval(_save, settings.save_timer*1000));
-                    }
-                    break;
-                default:
-                    $.error("Not Implemented save mode : "+settings.save_mode);
+            $.each(self.safeguard('getItems'), function(i, e) {
+                if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
+                    settings.editor_plugin.onChange($(e), _has_changed);
+                } else {
+                    $(e).bind("change", _has_changed);
+                }
+            });
+            
+            if (settings.save_mode == "timer") {
+                if (settings.save_timer) {
+                    _set_timer();
+                }
             }
 
-            self.bind("submit", function(e) {
-                clearInterval(self.data("timer"));
-                self.safeguard('flush');
-            });
+            self.bind("submit", _unbind);
+            // because the onchange event is not fired in some cases (for instance when pushing the back button in chromium)
+            $(window).bind("unload", _save);
 
             switch (settings.recover_mode) {
                 case "silent":
