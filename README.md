@@ -78,25 +78,25 @@ Here is a small example of how to use a custom recovery mode, and some other stu
 
 Let's assume we have a form in the page with a title input, a content textarea with a tinyMCE bind,  
 and any other input that we don't want to save (a password for example). 
-``
- // don't do anything untill the page is loaded 
- jQuery(function() { 
-     // don't do anything untill tinyMCE is loaded ! 
-     tinyMCE.settings.oninit = function() { 
-         $('#my_form').safeguard('init', 
+
+```javascript
+    // don't do anything untill the page is loaded 
+    jQuery(function() { 
+        // don't do anything untill tinyMCE is loaded ! 
+        tinyMCE.settings.oninit = function() { 
+            $('#my_form').safeguard('init', 
                          {"recover_mode": "custom", // tells safeguard that we will handle the recovery by ourselves. 
                           "editor_plugin":safeguard_tinymce, // tells safeguard that some fields in the form are tinyMCE bound. 
                           "selector":"#id_title,#id_content" // used as a whitelist, we could also do something like 
                                                              // "[id!=id_password]" if we prefer a blacklist style selector. 
                          }); 
-         if ($('#my_form').safeguard('hasItems')) { // check if there are saved datas at initialization time 
-             $("#content").append("<a class='safeguard-btn'>Recover datas</a>"); // add a button if it is the case 
-             $(".safeguard-btn").bind("click", function() { $('#article_form').safeguard('load'); }); // bind the click on the button to load the saved datas 
-         } 
-     } 
-  }); 
-`` 
-
+            if ($('#my_form').safeguard('hasItems')) { // check if there are saved datas at initialization time 
+                $("#content").append("<a class='safeguard-btn'>Recover datas</a>"); // add a button if it is the case 
+                $(".safeguard-btn").bind("click", function() { $('#article_form').safeguard('load'); }); // bind the click on the button to load the saved datas 
+            } 
+        } 
+    }); 
+```
 
 TODO
 ----
