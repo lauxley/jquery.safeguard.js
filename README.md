@@ -28,6 +28,7 @@ Available configs
  
     **default** : "safeguard-",  
     Change the suffix used to store the datas in the local storage.
+    You should change this to something dynamic if you have several forms in the same page using safeguard.
 
 * editor_plugin
 
@@ -70,6 +71,9 @@ Available configs
     **default** : "You have unsaved datas, do you want to retrieve them ?"  
     change the sentence displayed in the confirm window when the recover_mode is set to "alert".
 
+* max_age
+    **default** : 1 day (60*60*24 seconds)  
+    The number of seconds a key (and thus a form) will stay in db before being purged.
 
 Example snippet
 ---------------
@@ -105,3 +109,4 @@ TODO
 * add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
 * comments
 * history
+* use the window.history.pushState to make the back button of the browser cancel the loading of datas from the localeStorage
