@@ -170,7 +170,7 @@ var safeguard_tinymce = {
         
         flush : function() {
             var key = settings.local_key+document.location.pathname;
-            var index_store = JSON.parse(localStorage[settings.local_key+"local_store"]); 
+            var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]); 
             delete index_store[key];
             localStorage[settings.local_key+"local_store"] = JSON.stringify(index_store);
             localStorage.removeItem(key);

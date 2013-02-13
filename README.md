@@ -110,3 +110,4 @@ TODO
 * comments
 * history
 * use the window.history.pushState to make the back button of the browser cancel the loading of datas from the localeStorage
+* make it more robust ! (what happen if the index_store key is missing for example ?! - customs JSON stringify and parse methods would be a good idea)
