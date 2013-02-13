@@ -73,7 +73,7 @@ Available configs
 
 * max_age  
     **default** : 1 day (60*60*24 seconds)  
-    The number of seconds a key (and thus a form) will stay in db before being purged.
+    The number of seconds a key (and thus a form) will stay in the local storage before being purged.
 
 Example snippet
 ---------------
