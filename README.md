@@ -21,6 +21,7 @@ But you can change this behavior usings configs:
 
 In this case, the form datas will be saved automatically every 10 seconds.
 
+
 Available configs
 -----------------
 
@@ -75,6 +76,7 @@ Available configs
     **default** : 1 day (60*60*24 seconds)  
     The number of seconds a key (and thus a form) will stay in the local storage before being purged.
 
+
 Example snippet
 ---------------
 
@@ -102,10 +104,40 @@ and any other input that we don't want to save (a password for example).
 
 ```
 
+
+Wysiwygs pluggin
+----------------
+
+Let's take a quick look at the implementation of the tinyMCE plugin :
+
+```javascript
+var safeguard_tinymce = {
+    isConcerned : function(el) {
+        return (tinyMCE.get(el.attr("id")) !== undefined);
+    },
+    getVal : function(el) {
+        return tinyMCE.get(el.attr("id")).getContent();
+    },
+    setVal : function(el, val) {
+        tinyMCE.get(el.attr("id")).setContent(val);
+    },
+    onChange : function(el, cb) {
+        // NOTE : for this to work you need to call the init method of safeguard AFTER the initialization of tinyMCE
+        tinyMCE.get(el.attr("id")).onChange.add(cb);
+   }
+};
+```
+This is pretty straightforward, we need 4 methods, to hook the functionalities of safeguard with those of the wysiwyg.
+* isConcerned returns a boolean, true if the given field is bound to the wysiwyg, false otherwise.
+* getVal returns the content of the wysiwyg.
+* setVal call the wysiwyg's method to set its content with the given value.
+* onChange is passed a form field and a function, its role is to bind the change event of the wysiwyg linked to the form field with the given function.
+
+
 TODO
 ----
 
-* plugin explanation
+
 * add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
 * comments
 * history

@@ -8,7 +8,7 @@
 
 var safeguard_tinymce = {
     isConcerned : function(el) {
-        return (tinyMCE.get(el.attr("id")) != undefined);
+        return (tinyMCE.get(el.attr("id")) !== undefined);
     },
     getVal : function(el) {
         return tinyMCE.get(el.attr("id")).getContent();
@@ -43,7 +43,7 @@ var safeguard_tinymce = {
             if (!items.length) {
                 this.each(function() {
                     $.each( $("textarea,input,select", this), function(i, e) {
-                        if ($(e).attr("id") != undefined && (!settings.selector || (settings.selector && $(e).is(settings.selector)))) {
+                        if ($(e).attr("id") !== undefined && (!settings.selector || (settings.selector && $(e).is(settings.selector)))) {
                             items.push(e);
                         }
                     });
@@ -92,7 +92,7 @@ var safeguard_tinymce = {
                 self.safeguard('flush');
             }
 
-            if (config == undefined) config = {};
+            if (config === undefined) config = {};
             settings = $.extend({}, defaults);
             if (config) { $.extend(settings, config); }
             
@@ -154,7 +154,7 @@ var safeguard_tinymce = {
         },
 
         load : function() {
-            var l = [];
+            var = $([]);
             if (this.safeguard('hasItems')) {
                 var o = JSON.parse(localStorage[settings.local_key+document.location.pathname]);
                 var l = $.each(this.safeguard('getItems'), function(i, e) {
@@ -177,7 +177,7 @@ var safeguard_tinymce = {
         },
 
         hasItems : function() {
-            return (localStorage[settings.local_key+document.location.pathname] != undefined);
+            return (localStorage[settings.local_key+document.location.pathname] !== undefined);
         },
 
         clean : function() {
@@ -186,7 +186,7 @@ var safeguard_tinymce = {
             var d = new Date().getTime();
             for (key in index_store) {
                 if (parseInt(d) - parseInt(index_store[key]) > settings.max_age * 1000) {
-                    delete localStorage[key];
+                    localStorage.removeItem(key);
                     delete index_store[key];
                 }
             }
