@@ -31,16 +31,19 @@ var safeguard_tinymce = {
         selector : null,
         recover_mode : "silent",
         confirm_label : "You have unsaved datas, do you want to retrieve them ?",
-        max_age : 60*60*24 // set the expiration timer (in seconds), default is 1 day
-        // history : 0 // TODO
+        max_age : 60*60*24, // set the expiration timer (in seconds), default is 1 day
+        history : 1
     };
     var settings = {};
     var items = [];
     var has_changed = false;
 
+    var getHKey = function() {
+        return settings.local_key + document.location.pathname;
+    };
 
-    var getHKey = function (index) {
-        return (index == undefined ? 'history-' + index + '-' : '') + settings.local_key;
+    var getStoreKey = function() {
+        return settings.local_key+"index_store";
     };
 
     var methods = {
@@ -58,13 +61,12 @@ var safeguard_tinymce = {
         },
 
         getDatas : function(index) {
-            var datas = {};
-            var hkey = getHKey(index);
-            $.each(this.safeguard('getItems'), function(i, e) { 
-                key =  hkey + e.attr("id");
-                datas[key] = localStorage[key];
-            });
-            return datas;
+            var state_list = JSON.parse(localStorage[getHKey()]);
+            if (index) {
+                return state_list.slice(index, index + 1)[0]; 
+            } else {
+                return state_list.shift();
+            }
         },
 
         init : function(config) {
@@ -149,11 +151,16 @@ var safeguard_tinymce = {
 
         save : function() {
             function _add(key, val) {
-                localStorage[key] = val;
-                var is = localStorage[settings.local_key+"index_store"];
+                var state_list = JSON.parse(localStorage[key]?localStorage[key]:"[]");
+                state_list.unshift(val);
+                if (state_list.length > settings.history) {
+                    state_list.pop();
+                }
+                localStorage[key] = JSON.stringify(state_list);
+                var is = localStorage[getStoreKey()];
                 var index_store = JSON.parse(is?is:"{}");
                 index_store[key] = new Date().getTime(); // update/create the date for this key
-                localStorage[settings.local_key+"index_store"] = JSON.stringify(index_store);
+                localStorage[getStoreKey()] = JSON.stringify(index_store);
             }
             vals = {};
             var l = $.each(this.safeguard('getItems'), function(i, e) {
@@ -164,14 +171,14 @@ var safeguard_tinymce = {
                 }
                 vals[$(e).attr("id")] = val;
             });
-            _add(settings.local_key+document.location.pathname, JSON.stringify(vals));
+            _add(getHKey(), vals);
             return l;  // keep the chainability
         },
 
-        load : function() {
-            var = $([]);
+        load : function(index) {
+            var l = $([]);
             if (this.safeguard('hasItems')) {
-                var o = JSON.parse(localStorage[settings.local_key+document.location.pathname]);
+                var o = this.safeguard('getDatas', index);
                 var l = $.each(this.safeguard('getItems'), function(i, e) {
                     if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
                         settings.editor_plugin.setVal($(e), o[$(e).attr("id")]);
@@ -184,20 +191,20 @@ var safeguard_tinymce = {
         },
         
         flush : function() {
-            var key = settings.local_key+document.location.pathname;
-            var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]); 
+            var key = getHKey();
+            var index_store = JSON.parse(localStorage[getStoreKey()]); 
             delete index_store[key];
-            localStorage[settings.local_key+"local_store"] = JSON.stringify(index_store);
+            localStorage[getStoreKey()] = JSON.stringify(index_store);
             localStorage.removeItem(key);
         },
 
         hasItems : function() {
-            return (localStorage[settings.local_key+document.location.pathname] !== undefined);
+            return (localStorage[getHKey()] !== undefined);
         },
 
         clean : function() {
             // look for expired keys
-            var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]);
+            var index_store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
             var d = new Date().getTime();
             for (key in index_store) {
                 if (parseInt(d) - parseInt(index_store[key]) > settings.max_age * 1000) {
@@ -205,7 +212,7 @@ var safeguard_tinymce = {
                     delete index_store[key];
                 }
             }
-            localStorage[settings.local_key+"index_store"] = JSON.stringify(index_store);
+            localStorage[getStoreKey()] = JSON.stringify(index_store);
         }
     };
 
