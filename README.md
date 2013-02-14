@@ -78,11 +78,11 @@ Available configs
 
 * history
 
-    **default** : 0  
+    **default** : 1  
     When history is set to X (X being non-zero), the save method will push the current state in a list of form states, up to a length of X.  
     Note that untill we find a good and generic way to handle this, the load method will still recover the last state, unless you pass it an integer being the index in the history.  
     It is your responsability to create an interface to recover data from this list.  
-    Also, note that it is not recommanded to use the save_mode "change" because in this case the history will grow very quickly.
+    Also, It is not recommanded to use the save_mode "change" because in this case the history will grow very quickly.
     Another convenient method is getDatas, like load, you can pass it an optional integer.
 
 
