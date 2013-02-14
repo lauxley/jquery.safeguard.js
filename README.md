@@ -76,6 +76,11 @@ Available configs
     **default** : 1 day (60*60*24 seconds)  
     The number of seconds a key (and thus a form) will stay in the local storage before being purged.
 
+* time
+
+  **default** : new Date().getTime() (= the current client date)  
+  Use this config in case you want to use server side times.  
+  you can use the getTime method of safeguard to get the time at which the datas have been saved.
 
 Example snippet
 ---------------
@@ -103,7 +108,6 @@ and any other input that we don't want to save (a password for example).
     };
 
 ```
-
 
 Wysiwygs pluggin
 ----------------
@@ -143,3 +147,4 @@ TODO
 * history
 * use the window.history.pushState to make the back button of the browser cancel the loading of datas from the localeStorage
 * make it more robust ! (what happen if the index_store key is missing for example ?! - customs JSON stringify and parse methods would be a good idea)
+* improve the time management (for now the time is only calculated on script initialisation, but we could use a custom function that calculate the difference between the system date and the given date...)

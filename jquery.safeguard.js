@@ -31,7 +31,8 @@ var safeguard_tinymce = {
         selector : null,
         recover_mode : "silent",
         confirm_label : "You have unsaved datas, do you want to retrieve them ?",
-        max_age : 60*60*24 // set the expiration timer (in seconds), default is 1 day
+        max_age : 60*60*24, // set the expiration timer (in seconds), default is 1 day
+        time : new Date().getTime() // in case you would want to pass a server time
         // history : 0 // TODO
     };
     var settings = {};
@@ -137,7 +138,7 @@ var safeguard_tinymce = {
                 localStorage[key] = val;
                 var is = localStorage[settings.local_key+"index_store"];
                 var index_store = JSON.parse(is?is:"{}");
-                index_store[key] = new Date().getTime(); // update/create the date for this key
+                index_store[key] = settings.time; // update/create the date for this key
                 localStorage[settings.local_key+"index_store"] = JSON.stringify(index_store);
             }
             vals = {};
@@ -154,7 +155,7 @@ var safeguard_tinymce = {
         },
 
         load : function() {
-            var = $([]);
+            var l = $([]);
             if (this.safeguard('hasItems')) {
                 var o = JSON.parse(localStorage[settings.local_key+document.location.pathname]);
                 var l = $.each(this.safeguard('getItems'), function(i, e) {
@@ -183,7 +184,7 @@ var safeguard_tinymce = {
         clean : function() {
             // look for expired keys
             var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]);
-            var d = new Date().getTime();
+            var d = settings.time;
             for (key in index_store) {
                 if (parseInt(d) - parseInt(index_store[key]) > settings.max_age * 1000) {
                     localStorage.removeItem(key);
@@ -191,7 +192,13 @@ var safeguard_tinymce = {
                 }
             }
             localStorage[settings.local_key+"index_store"] = JSON.stringify(index_store);
+        },
+        
+        getTime : function() {
+            var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]);
+            return parseInt(index_store[settings.local_key+document.location.pathname]);
         }
+
     };
 
     $.fn.safeguard = function(method) {
