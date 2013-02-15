@@ -45,7 +45,6 @@ Available configs
     * "change" bind the save on the "onchange" event of the inputs
     * "timer" save the form on a regular basis  
 
-
 * save_timer
 
     **default** : 0  
@@ -64,8 +63,7 @@ Available configs
     valid values are "silent", "alert" and "custom".  
     * In "silent" mode, if datas are present in the storage when safeguard is initialized, they will be used to fill the form, without user input.  
     * In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
-    * The "custom" mode let you bind the data recovery as you wish (example on the way).
-
+    * The "custom" mode let you bind the data recovery as you wish (example on the way).  
 
 * confirm_label
 
@@ -73,6 +71,7 @@ Available configs
     change the sentence displayed in the confirm window when the recover_mode is set to "alert".
 
 * max_age  
+
     **default** : 1 day (60*60*24 seconds)  
     The number of seconds a key (and thus a form) will stay in the local storage before being purged.
 
@@ -80,7 +79,17 @@ Available configs
 
   **default** : new Date().getTime() (= the current client date)  
   Use this config in case you want to use server side times.  
-  you can use the getTime method of safeguard to get the time at which the datas have been saved.
+  you can use the getTime method of safeguard to get the time at which the datas have been saved.  
+
+* history
+
+    **default** : 1  
+    When history is set to X (X being non-zero), the save method will push the current state in a list of form states, up to a length of X.  
+    Note that untill we find a good and generic way to handle this, the load method will still recover the last state, unless you pass it an integer being the index in the history.  
+    It is your responsability to create an interface to recover data from this list.  
+    Also, It is not recommanded to use the save_mode "change" because in this case the history will grow very quickly.
+    Another convenient method is getDatas, like load, you can pass it an optional integer.
+
 
 Example snippet
 ---------------
@@ -141,10 +150,8 @@ This is pretty straightforward, we need 4 methods, to hook the functionalities o
 TODO
 ----
 
-
 * add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
 * comments
-* history
 * use the window.history.pushState to make the back button of the browser cancel the loading of datas from the localeStorage
 * make it more robust ! (what happen if the index_store key is missing for example ?! - customs JSON stringify and parse methods would be a good idea)
 * improve the time management (for now the time is only calculated on script initialisation, but we could use a custom function that calculate the difference between the system date and the given date...)
