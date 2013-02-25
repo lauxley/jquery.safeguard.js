@@ -90,6 +90,13 @@ Available configs
     Also, It is not recommanded to use the save_mode "change" because in this case the history will grow very quickly.
     Another convenient method is getDatas, like load, you can pass it an optional integer.
 
+* flush_on_submit
+* flush_on_reset
+  
+    **default** : true  
+    These 2 settings if set to false tells safeguard to not flush datas respectivelly when the user submit or reset the form,  
+    Note that in this case, it is your responsability to flush the datas (with .safeguard('flush', key)) when you feel comfortable to do so,  
+    probably in the confirm view.
 
 Example snippet
 ---------------
@@ -153,5 +160,4 @@ TODO
 * add a custom mode for save_mode ? (it feels hackish to use save_mode "timer" and save_timer 0)
 * comments
 * use the window.history.pushState to make the back button of the browser cancel the loading of datas from the localeStorage
-* make it more robust ! (what happen if the index_store key is missing for example ?! - customs JSON stringify and parse methods would be a good idea)
 * improve the time management (for now the time is only calculated on script initialisation, but we could use a custom function that calculate the difference between the system date and the given date...)

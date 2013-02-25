@@ -32,19 +32,35 @@ var safeguard_tinymce = {
         recover_mode : "silent",
         confirm_label : "You have unsaved datas, do you want to retrieve them ?",
         max_age : 60*60*24, // set the expiration timer (in seconds), default is 1 day
-        time : new Date().getTime(), // in case you would want to pass a server time
-        history : 1
+        time : Math.round(new Date().getTime() / 1000), // in case you would want to pass a server time
+        history : 1,
+        flush_on_submit : true,
+        flush_on_reset : true
     };
     var settings = {};
     var items = [];
     var has_changed = false;
 
-    var getHKey = function() {
-        return settings.local_key + document.location.pathname;
+    var getHKey = function(url) {
+        return settings.local_key + (url!==undefined?url:document.location.pathname);
     };
 
     var getStoreKey = function() {
-        return settings.local_key+"index_store";
+        return settings.local_key + "index_store";
+    };
+
+    var getStore = function(url) {
+        try {
+            return JSON.parse(localStorage[getStoreKey()])[getHKey(url)];
+        } catch (TypeError) {
+            return null;
+        }
+    };
+
+    var setStore = function(data, url) {
+        var store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
+        store[getHKey(url)] = data;
+        localStorage[getStoreKey()] = JSON.stringify(store);
     };
 
     var methods = {
@@ -105,11 +121,6 @@ var safeguard_tinymce = {
                 self.data('timer', setInterval(_save, settings.save_timer*1000));
             }
 
-            function _unbind() {
-                clearInterval(self.data("timer"));
-                self.safeguard('flush');
-            }
-
             if (config === undefined) config = {};
             settings = $.extend({}, defaults);
             if (config) { $.extend(settings, config); }
@@ -128,7 +139,23 @@ var safeguard_tinymce = {
                 }
             }
 
-            self.bind("submit", _unbind);
+            self.bind("submit", function() {
+                clearInterval(self.data("timer"));
+                if (settings.flush_on_submit) {
+                    self.safeguard('flush');
+                } else {
+                    self.safeguard('invalidate');
+                }
+            });
+            self.bind("reset", function() {
+                clearInterval(self.data("timer"));
+                if (settings.flush_on_reset) {
+                    self.safeguard('flush');
+                } else {
+                    self.safeguard('invalidate');
+                }
+            });
+
             // because the onchange event is not fired in some cases (for instance when pushing the back button in chromium)
             $(window).bind("unload", _save);
 
@@ -158,10 +185,7 @@ var safeguard_tinymce = {
                     state_list.pop();
                 }
                 localStorage[key] = JSON.stringify(state_list);
-                var is = localStorage[getStoreKey()];
-                var index_store = JSON.parse(is?is:"{}");
-                index_store[key] = settings.time;
-                localStorage[getStoreKey()] = JSON.stringify(index_store);
+                setStore({'time':settings.time, 'valid':true});
             }
             vals = {};
             var l = $.each(this.safeguard('getItems'), function(i, e) {
@@ -178,47 +202,78 @@ var safeguard_tinymce = {
 
         load : function(index) {
             var l = $([]);
-            if (this.safeguard('hasItems')) {
-                var o = this.safeguard('getDatas', index);
-                var l = $.each(this.safeguard('getItems'), function(i, e) {
-                    if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
-                        settings.editor_plugin.setVal($(e), o[$(e).attr("id")]);
-                    } else {
-                        $(e).val(o[$(e).attr("id")]);
-                    }
-                });
-            }
+            var o = this.safeguard('getDatas', index);
+            var l = $.each(this.safeguard('getItems'), function(i, e) {
+                if (settings.editor_plugin && settings.editor_plugin.isConcerned($(e))) {
+                    settings.editor_plugin.setVal($(e), o[$(e).attr("id")]);
+                } else {
+                    $(e).val(o[$(e).attr("id")]);
+                }
+            });
             return l; // keep the chainability
         },
         
-        flush : function() {
-            var key = getHKey();
-            var index_store = JSON.parse(localStorage[getStoreKey()]); 
-            delete index_store[key];
-            localStorage[getStoreKey()] = JSON.stringify(index_store);
+        flush : function(url) {
+            var key = getHKey(url);
+            var index_store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
+            if (index_store) {
+                delete index_store[key];
+                localStorage[getStoreKey()] = JSON.stringify(index_store);
+            }
             localStorage.removeItem(key);
         },
 
+        setValidity : function(val, url) {
+            var store = getStore(url);
+            if (store) {
+                store["valid"] = val;
+                setStore(store);
+            }
+        },
+
+        invalidate : function(url) {
+            this.safeguard('setValidity', false, url);
+        },
+
+        validate : function(url) {
+            this.safeguard('setValidity', true, url);
+        },
+
+        isValid : function(url) {
+            var store = getStore(url);
+            if (store) {
+                return store['valid'];
+            } else {
+                return false;
+            }
+        },
+
         hasItems : function() {
-            return (localStorage[getHKey()] !== undefined);
+            return (localStorage[getHKey()] !== undefined && this.safeguard('isValid'));
         },
 
         clean : function() {
             // look for expired keys
             var d = settings.time;
             var index_store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
-            for (key in index_store) {
-                if (parseInt(d) - parseInt(index_store[key]) > settings.max_age * 1000) {
-                    localStorage.removeItem(key);
-                    delete index_store[key];
+            if (index_store) {
+                for (key in index_store) {
+                    if (parseInt(d) - parseInt(index_store[key]['time']) > settings.max_age * 1000) {
+                        localStorage.removeItem(key);
+                        delete index_store[key];
+                    }
                 }
+                localStorage[getStoreKey()] = JSON.stringify(index_store);
             }
-            localStorage[getStoreKey()] = JSON.stringify(index_store);
         },
         
         getTime : function() {
-            var index_store = JSON.parse(localStorage[settings.local_key+"index_store"]);
-            return parseInt(index_store[settings.local_key+document.location.pathname]);
+            var store = getStore();
+            if (store) {
+                return parseInt(store['time']);
+            } else {
+                return null;
+            }
         }
     };
 
