@@ -258,7 +258,7 @@ var safeguard_tinymce = {
             var index_store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
             if (index_store) {
                 for (key in index_store) {
-                    if (parseInt(d) - parseInt(index_store[key]['time']) > settings.max_age * 1000) {
+                    if (parseInt(d) - parseInt(index_store[key]['time']) > settings.max_age) {
                         localStorage.removeItem(key);
                         delete index_store[key];
                     }
