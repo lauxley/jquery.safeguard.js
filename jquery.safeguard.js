@@ -11,7 +11,11 @@ var safeguard_tinymce = {
         return (tinyMCE.get(el.attr("id")) !== undefined);
     },
     getVal : function(el) {
-        return tinyMCE.get(el.attr("id")).getContent();
+        try {
+            return tinyMCE.get(el.attr("id")).getContent();
+        } catch(err) {
+            return el.val();
+        }
     },
     setVal : function(el, val) {
         tinyMCE.get(el.attr("id")).setContent(val);
