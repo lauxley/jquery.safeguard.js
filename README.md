@@ -8,16 +8,14 @@ Usage
 
 Safeguard is fairly easy to use :
 
-`$('#my-form').safeguard('init');`
+`$('#my-form').safeguard();`
 
 By default safeguard will save datas on the onchange event,  
 and will automatically recover it when the form is initialized if the form have not been submited.  
 But you can change this behavior usings configs:  
 
-`$('#my-form').safeguard('init', { 
-                                "save_mode" : "timer",
-                                "save_timer" : 10
-                                });`
+`$('#my-form').safeguard({ "save_mode" : "timer",
+                           "save_timer" : 10 });`
 
 In this case, the form datas will be saved automatically every 10 seconds.
 
@@ -42,9 +40,9 @@ Available configs
     **default** : "change"  
     Change when the datas will be saved,  
     two values for now :
-    * "change" bind the save on the "onchange" event of the inputs
-    * "timer" save the form on a regular basis  
-
+    * "change" bind the save on the "onchange" event of the inputs 
+    * "timer" save the form on a regular basis 
+  
 * save_timer
 
     **default** : 0  
@@ -64,7 +62,7 @@ Available configs
     * In "silent" mode, if datas are present in the storage when safeguard is initialized, they will be used to fill the form, without user input.  
     * In "alert" mode, a confirm window will appear asking for the user if he wishes to recover the datas.  
     * The "custom" mode let you bind the data recovery as you wish (example on the way).  
-
+  
 * confirm_label
 
     **default** : "You have unsaved datas, do you want to retrieve them ?"  
@@ -74,6 +72,7 @@ Available configs
 
     **default** : 1 day (60*60*24 seconds)  
     The number of seconds a key (and thus a form) will stay in the local storage before being purged.
+    Set to 0 if you never want to flush the datas automatically (you can still do it yourself by calling .safeguard('flush', key)).
 
 * time
 
@@ -96,7 +95,12 @@ Available configs
     **default** : true  
     These 2 settings if set to false tells safeguard to not flush datas respectivelly when the user submit or reset the form,  
     Note that in this case, it is your responsability to flush the datas (with .safeguard('flush', key)) when you feel comfortable to do so,  
-    probably in the confirm view.
+    probably in the confirm view. 
+
+* init_callback 
+    **default** : null  
+    function of the form : my_callback(safeguad_obj, has_items)  
+    will be called at the end of the safeguard initialisation, and is particularly usefull in case of a custom recovery mode (see the example below).  
 
 Example snippet
 ---------------
@@ -116,12 +120,13 @@ and any other input that we don't want to save (a password for example).
                       "editor_plugin":safeguard_tinymce, // tells safeguard that some fields in the form are tinyMCE bound. 
                       "selector":"#id_title,#id_content" // used as a whitelist, we could also do something like 
                                                          // "[id!=id_password]" if we prefer a blacklist style selector. 
-                     }); 
-        if ($('#my_form').safeguard('hasItems')) { // check if there are saved datas at initialization time 
-            $("#content").append("<a class='safeguard-btn'>Recover datas</a>"); // add a button if it is the case 
-            $(".safeguard-btn").bind("click", function() { $('#article_form').safeguard('load'); }); // bind the click on the button to load the saved datas 
-        } 
-    };
+                      "init_callback" : function (safeguarded_form, has_items) {
+                                                 if (has_items) { // check if there are saved datas at initialization time 
+                                                    $("#content").append("<a class='safeguard-btn'>Recover datas</a>"); // add a button if it is the case 
+                                                    $(".safeguard-btn").bind("click", function() { safeguarded_form.safeguard('load'); }); // bind the click on the button to load the saved datas 
+                                                 }
+                                        }
+    });
 
 ```
 

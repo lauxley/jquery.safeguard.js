@@ -39,9 +39,11 @@ var safeguard_tinymce = {
         time : Math.round(new Date().getTime() / 1000), // in case you would want to pass a server time
         history : 1,
         flush_on_submit : true,
-        flush_on_reset : true
+        flush_on_reset : true,
+        init_callback : null,
+        submit_callback : null
     };
-    var settings = {};
+    var settings = defaults;
     var items = [];
     var has_changed = false;
 
@@ -126,7 +128,6 @@ var safeguard_tinymce = {
             }
 
             if (config === undefined) config = {};
-            settings = $.extend({}, defaults);
             if (config) { $.extend(settings, config); }
             
             $.each(self.safeguard('getItems'), function(i, e) {
@@ -149,6 +150,9 @@ var safeguard_tinymce = {
                     self.safeguard('flush');
                 } else {
                     self.safeguard('invalidate');
+                }
+                if (settings.submit_callback) {
+                    settings.submit_callback(self);
                 }
             });
             self.bind("reset", function() {
@@ -175,7 +179,10 @@ var safeguard_tinymce = {
                 default:
                     $.error("Not Implemented recover mode : "+settings.recover_mode);
             }
-
+            
+            if (settings.init_callback) {
+                settings.init_callback(self, self.safeguard('hasItems'));
+            }
 
             self.safeguard('clean');
             return this;
@@ -231,7 +238,7 @@ var safeguard_tinymce = {
             var store = getStore(url);
             if (store) {
                 store["valid"] = val;
-                setStore(store);
+                setStore(store, url);
             }
         },
 
@@ -258,16 +265,18 @@ var safeguard_tinymce = {
 
         clean : function() {
             // look for expired keys
-            var d = settings.time;
-            var index_store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
-            if (index_store) {
-                for (key in index_store) {
-                    if (parseInt(d) - parseInt(index_store[key]['time']) > settings.max_age) {
-                        localStorage.removeItem(key);
-                        delete index_store[key];
+            if (settings.max_age != 0) {
+                var d = settings.time;
+                var index_store = JSON.parse(localStorage[getStoreKey()]?localStorage[getStoreKey()]:"{}");
+                if (index_store) {
+                    for (key in index_store) {
+                        if (parseInt(d) - parseInt(index_store[key]['time']) > settings.max_age) {
+                            localStorage.removeItem(key);
+                            delete index_store[key];
+                        }
                     }
+                    localStorage[getStoreKey()] = JSON.stringify(index_store);
                 }
-                localStorage[getStoreKey()] = JSON.stringify(index_store);
             }
         },
         
