@@ -3,7 +3,7 @@
  * to save/load the datas of a form in/from the local storage
  * 
  * code booted by robin tissot for libération (www.liberation.fr)
- * and hosted here : https://github.com/lauxley/jquery.safegard.js
+ * and hosted here : https://github.com/lauxley/jquery.safeguard.js
  */
 
 var safeguard_tinymce = {
